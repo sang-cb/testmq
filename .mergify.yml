@@ -1,12 +1,13 @@
 queue_rules:
   - name: default
     conditions:
-      - base=master
+      - label!=abc
 
 pull_request_rules:
   - name: merge using the merge queue
     conditions:
       - base=master
+      - label!=abc
     actions:
       queue:
         name: default
