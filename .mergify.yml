@@ -1,13 +1,12 @@
 queue_rules:
   - name: default
     conditions:
-      - "#approved-reviews-by>=1"
+      - base=master
 
 pull_request_rules:
   - name: merge using the merge queue
     conditions:
       - base=main
-      - "#approved-reviews-by>=1"
     actions:
       queue:
         name: default
