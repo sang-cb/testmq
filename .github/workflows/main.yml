@@ -8,6 +8,12 @@ jobs:
     if: github.event.issue.pull_request && github.event.comment.body == 'test please'
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+          cache: 'pip'
+      - run: pip install -r pygithub
+
       - name: Hello
         shell: python
         run: |
