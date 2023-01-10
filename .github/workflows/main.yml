@@ -9,9 +9,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check environment variables
-        uses: distributhor/workflow-webhook@v1
-        env:
-          webhook_url: ${{ secrets.WEBHOOK_PR_URL }}
-          webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
-          data: '{ "pr_number": ${{ github.event.issue.number }}, "context": "pr-ci-on-bts" }'
+      - name: Hello
+        shell: bash
+        run: echo "hello"
