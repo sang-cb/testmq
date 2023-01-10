@@ -7,23 +7,48 @@ jobs:
   pr-ci-on-bts:
     if: github.event.issue.pull_request && github.event.comment.body == 'test please'
     runs-on: ubuntu-latest
-
     steps:
       - name: Hello
-        shell: bash
+        shell: python
         run: |
-          echo "hello"
-          echo ${{ github.repository }}
-          echo ${{ github.event.pull_request.head.sha }}
-          echo ${{ github.token }}
-          echo ${{ github.event.workflow_run.conclusion }}
-          curl --request POST \
-                    --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
-                    --header 'authorization: Bearer ${{ github.token }}' \
-                    --header 'content-type: application/json' \
-                    --data '{
-                      "state": "SUCCESS",
-                      "context": "pr-ci-on-bts",
-                      "target_url": "${{ github.event.workflow_run.html_url }}"
-                      }' \
-                    --fail
+          import json
+          import os
+          import sys
+          from github import Github
+          from github.GithubObject import NotSet
+          root = os.environ["GITHUB_WORKSPACE"]
+          # Needed for import jira_whitelist to work
+          sys.path.insert(0, root)
+          sha = "${{github.event.pull_request.head.sha}}"
+          repo = Github("${{github.token}}").get_repo("${{github.repository}}")
+
+          output = {
+              k: v
+              for k,v in [
+                      ("title", "as execpected"),
+                      ("summary", "good"),
+                      ("text", "just a text"),
+              ]
+              if v
+          }
+
+          # GitHub wonkiness workaround: sometimes the check we report will be
+          # forgotten and never show up in the PR, even though it exists, thus
+          # blocking the PR until a new commit is pushed
+          check_run = repo.create_check_run(
+              head_sha=sha,
+              name="pr-ci-on-bts",
+              conclusion="success",
+              output=output,
+          )
+
+          # The workaround is to create a *check* (because it lets us present more
+          # details to the user), then create a *status*, with the check's details
+          # URL as the target URL. Statuses don't seem to suffer from the same
+          # wonkiness, but they're less flexible.
+          commit = repo.get_commit(sha)
+          status = commit.create_status(
+              context="pr-ci-on-bts",
+              state="success",
+              target_url=check_run.details_url
+          )
