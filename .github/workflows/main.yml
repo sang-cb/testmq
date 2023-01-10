@@ -13,6 +13,10 @@ jobs:
         shell: bash
         run: |
           echo "hello"
+          echo ${{ github.repository }}
+          echo ${{ github.event.workflow_run.head_commit.id }}
+          echo ${{ secrets.GITHUB_TOKEN }}
+          echo ${{ github.event.workflow_run.conclusion }}
           curl --request POST \
                     --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.workflow_run.head_commit.id }} \
                     --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
