@@ -16,4 +16,4 @@ jobs:
           name: pr-ci-on-bts
           conclusion: success
           output: |
-            {"summary": no summary}
+            {"summary": "no summary"}
