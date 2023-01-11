@@ -3,6 +3,11 @@ on:
   issue_comment:
     types: [created]
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+  
 jobs:
   pr-ci-on-bts:
     if: github.event.issue.pull_request && github.event.comment.body == 'test please'
