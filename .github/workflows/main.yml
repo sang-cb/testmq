@@ -4,11 +4,13 @@ on:
     types: [created]
 
 permissions:
-  actions: read
-  contents: read
+  actions: write
+  checks: write
+  contents: write
   issues: write
   pull-requests: write
   security-events: write
+  statuses: write
   
 jobs:
   pr-ci-on-bts:
