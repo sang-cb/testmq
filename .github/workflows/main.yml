@@ -3,15 +3,38 @@ on:
   issue_comment:
     types: [created]
 
+permissions:
+  actions: write
+  checks: write
+  contents: write
+  issues: write
+  pull-requests: write
+  security-events: write
+  statuses: write
+  
 jobs:
   pr-ci-on-bts:
     if: github.event.issue.pull_request && github.event.comment.body == 'test please'
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check environment variables
-        uses: distributhor/workflow-webhook@v1
-        env:
-          webhook_url: ${{ secrets.WEBHOOK_PR_URL }}
-          webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
-          data: '{ "pr_number": ${{ github.event.issue.number }}, "context": "pr-ci-on-bts" }'
+      - name: Create status
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.workflow_run.head_commit.id }} \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "state": "success",
+            "context": "pr-ci-on-bts",
+            "target_url": "${{ github.event.workflow_run.html_url }}"
+            }' \
+          --fail  
+      - uses: actions/checkout@v1
+      - uses: LouisBrunner/checks-action@v1.1.1
+        if: always()
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: pr-ci-on-bts
+          conclusion: success
+          output: |
+            {"summary": "no summary"}
